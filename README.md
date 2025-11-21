@@ -196,31 +196,72 @@ The evaluation generates three output files in the `results/` directory:
 
 ## Dashboard
 
-A Streamlit dashboard provides an interactive way to explore evaluation results:
+A modern React + FastAPI dashboard provides an interactive way to explore evaluation results.
+
+### Architecture
+
+- **Backend**: FastAPI REST API (`src/api.py`) that serves evaluation results
+- **Frontend**: React + TypeScript + Vite application with Tailwind CSS
 
 ### Running the Dashboard
 
+#### 1. Start the Backend API
+
+First, ensure you have run the evaluation to generate results:
+
 ```bash
-streamlit run dashboard/app.py
+python -m src.run_eval --n 20 --split test --no-llm
 ```
 
-The dashboard will automatically open in your browser. It provides:
+Then start the FastAPI server:
 
-- **Summary Metrics**: Key statistics at a glance
-- **Interactive Charts**: Distribution of scores and metrics
-- **Per-Note Explorer**: Filter and drill down into individual notes
-- **Sidebar Filters**: Filter by quality range, issue types, and more
+```bash
+# Option 1: Using the main.py entrypoint
+python main.py
+
+# Option 2: Using uvicorn directly
+uvicorn src.api:app --reload
+```
+
+The API will be available at `http://localhost:8000`.
+
+#### 2. Start the Frontend
+
+In a separate terminal, navigate to the frontend directory and start the development server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The dashboard will be available at `http://localhost:5173` and will automatically proxy API requests to the backend.
 
 ### Dashboard Features
 
-1. **Summary Cards**: Overview of evaluation metrics
-2. **Charts**: 
-   - Histogram of overall quality scores
-   - Bar chart of mean coverage/faithfulness/accuracy
-3. **Per-Note Details**: 
-   - View transcript, reference note, and generated note
-   - See all issues with severity indicators
-   - Compare deterministic vs LLM scores
+1. **Summary Metrics View**: 
+   - Overview cards showing key statistics (notes evaluated, mean scores, error rates)
+   - Clean, responsive grid layout
+
+2. **Notes List with Filters**:
+   - Filter by overall quality range (slider)
+   - Filter by issue types (checkboxes for hallucinations, missing critical findings, major issues)
+   - Sortable table with key metrics
+   - Status badges for quick identification of issues
+
+3. **Note Detail View**:
+   - Complete scores breakdown
+   - Issues grouped by category with severity indicators
+   - Expandable sections for transcript, reference note, and generated note
+   - Clean, readable layout with proper typography
+
+### API Endpoints
+
+The FastAPI backend exposes the following endpoints:
+
+- `GET /api/summary` - Get aggregated evaluation summary
+- `GET /api/notes` - Get list of notes with optional filtering (query parameters: `min_quality`, `max_quality`, `hallucination_only`, `missing_critical_only`, `major_issues_only`)
+- `GET /api/notes/{example_id}` - Get detailed information for a specific note
 
 ## Analysis Notebook
 
@@ -238,7 +279,7 @@ jupyter notebook notebooks/analysis.ipynb
 ## Project Structure
 
 ```
-Evals-Suite/
+SOAP_Evaluation/
 ├── src/
 │   ├── __init__.py
 │   ├── models.py          # Pydantic models for examples and eval results
@@ -246,10 +287,20 @@ Evals-Suite/
 │   ├── corrupt_note.py    # Utilities to generate "generated" notes by corrupting reference
 │   ├── llm_judges.py      # Wrapper around OpenAI Chat Completions API
 │   ├── metrics.py         # Core metric computation
-│   └── run_eval.py        # CLI script to run evaluation
+│   ├── run_eval.py        # CLI script to run evaluation
+│   └── api.py             # FastAPI backend for serving results
+├── frontend/
+│   ├── src/
+│   │   ├── components/    # React components (Card, Badge, SummaryMetrics, NotesList, NoteDetail)
+│   │   ├── api.ts         # API client functions
+│   │   ├── App.tsx        # Main application component
+│   │   └── main.tsx       # Entry point
+│   ├── package.json
+│   └── vite.config.ts
 ├── notebooks/
 │   └── analysis.ipynb     # Analysis and visualization
 ├── results/               # Created at runtime; holds output files
+├── main.py                # Entry point for FastAPI server
 ├── README.md
 └── requirements.txt
 ```

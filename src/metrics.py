@@ -4,12 +4,74 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import statistics
+
+try:
+    from rouge_score import rouge_scorer
+    ROUGE_AVAILABLE = True
+except ImportError:
+    ROUGE_AVAILABLE = False
+    rouge_scorer = None
+
+try:
+    import sacrebleu
+    SACREBLEU_AVAILABLE = True
+except ImportError:
+    SACREBLEU_AVAILABLE = False
+    sacrebleu = None
 
 from .models import SoapExample, EvalResult, Issue
 
 logger = logging.getLogger(__name__)
+
+
+def compute_rouge_l(reference: str, generated: str) -> float:
+    """
+    Compute ROUGE-L F1 between reference and generated text.
+    
+    Args:
+        reference: Reference text
+        generated: Generated text
+        
+    Returns:
+        ROUGE-L F1 score in [0, 1]
+    """
+    if not ROUGE_AVAILABLE:
+        logger.warning("rouge-score not available, skipping ROUGE-L computation")
+        return 0.0
+    
+    try:
+        scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=True)
+        scores = scorer.score(reference, generated)
+        return scores["rougeL"].fmeasure
+    except Exception as e:
+        logger.warning(f"Error computing ROUGE-L: {e}")
+        return 0.0
+
+
+def compute_bleu(reference: str, generated: str) -> float:
+    """
+    Compute BLEU score between reference and generated text.
+    
+    Args:
+        reference: Reference text
+        generated: Generated text
+        
+    Returns:
+        BLEU score in [0, 1] (normalized from percentage)
+    """
+    if not SACREBLEU_AVAILABLE:
+        logger.warning("sacrebleu not available, skipping BLEU computation")
+        return 0.0
+    
+    try:
+        bleu = sacrebleu.corpus_bleu([generated], [[reference]])
+        # sacrebleu returns percentage * 100; normalize to [0, 1]
+        return bleu.score / 100.0
+    except Exception as e:
+        logger.warning(f"Error computing BLEU: {e}")
+        return 0.0
 
 
 def has_soap_structure(text: str) -> bool:
@@ -161,6 +223,18 @@ def compute_case_metrics(
     scores["is_very_short"] = 1.0 if is_very_short else 0.0
     scores["is_too_short_relative"] = 1.0 if is_too_short_relative else 0.0
 
+    # ===== REFERENCE-BASED TEXT SIMILARITY METRICS =====
+    # Only compute when reference_note is available
+    if example.reference_note is not None and example.reference_note.strip():
+        rouge_l_f = compute_rouge_l(example.reference_note, example.generated_note)
+        bleu_score = compute_bleu(example.reference_note, example.generated_note)
+        scores["rouge_l_f"] = rouge_l_f
+        scores["bleu"] = bleu_score
+    else:
+        # Production mode: set to None to indicate not available
+        scores["rouge_l_f"] = None
+        scores["bleu"] = None
+
     # ===== LLM LAYER (optional, default ON) =====
     llm_scores: Dict[str, float] = {}
     if use_llm and llm_judge:
@@ -307,6 +381,16 @@ def aggregate_metrics(results: List[EvalResult], production_mode: bool = False) 
     is_very_short_scores = [r.scores.get("is_very_short", 0.0) for r in results]
     is_too_short_relative_scores = [r.scores.get("is_too_short_relative", 0.0) for r in results]
 
+    # Reference-based text similarity metrics (only available when reference_note exists)
+    rouge_l_f_scores = [
+        r.scores.get("rouge_l_f") for r in results 
+        if r.scores.get("rouge_l_f") is not None
+    ]
+    bleu_scores = [
+        r.scores.get("bleu") for r in results 
+        if r.scores.get("bleu") is not None
+    ]
+
     def mean_std(values: List[float]) -> Dict[str, float]:
         if not values:
             return {"mean": 0.0, "std": 0.0}
@@ -315,7 +399,7 @@ def aggregate_metrics(results: List[EvalResult], production_mode: bool = False) 
             "std": statistics.stdev(values) if len(values) > 1 else 0.0,
         }
 
-    return {
+    aggregated = {
         "n_examples": n,
         "production_mode": production_mode,
         "error_rates": {
@@ -352,6 +436,17 @@ def aggregate_metrics(results: List[EvalResult], production_mode: bool = False) 
     # Only include coverage_det if we have scores (not in production mode)
     if coverage_det_scores:
         aggregated["deterministic_metrics"]["coverage_det"] = mean_std(coverage_det_scores)
+    
+    # Include reference-based metrics if available (not in production mode)
+    if rouge_l_f_scores:
+        aggregated["scores"]["rouge_l_f"] = mean_std(rouge_l_f_scores)
+    else:
+        aggregated["scores"]["rouge_l_f"] = None
+    
+    if bleu_scores:
+        aggregated["scores"]["bleu"] = mean_std(bleu_scores)
+    else:
+        aggregated["scores"]["bleu"] = None
     
     return aggregated
 

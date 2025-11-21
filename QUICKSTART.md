@@ -57,7 +57,29 @@ Results will be saved in the `results/` directory:
 - `summary.json` - Aggregated metrics
 - `summary.csv` - Aggregated metrics in CSV format
 
-## Step 5: Analyze Results (Optional)
+## Step 5: View Results in Dashboard
+
+### Start the Backend API
+
+In one terminal:
+```bash
+python main.py
+```
+
+The API will be available at `http://localhost:8000`.
+
+### Start the Frontend
+
+In another terminal:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The dashboard will open at `http://localhost:5173` and automatically connect to the API.
+
+## Step 6: Analyze Results (Optional)
 
 Open the Jupyter notebook:
 ```bash
