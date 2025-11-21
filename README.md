@@ -54,61 +54,96 @@ We use the Hugging Face dataset **`omi-health/medical-dialogue-to-soap-summary`*
 - **Fast iteration on models**: Quickly identify which generated notes have issues and what types
 - **Production quality monitoring**: Track critical error rates over time (e.g., hallucination rate, missing critical findings rate)
 
-## Installation
+## Quick Start (Docker - Recommended)
 
-1. Clone this repository:
+The easiest way to run the entire system is using Docker Compose:
+
+1. **Clone the repository:**
 ```bash
 git clone <repository-url>
-cd Evals-Suite
+cd SOAP_Evaluation
 ```
 
-2. Install dependencies:
+2. **Set up environment variables:**
+```bash
+cp .env.example .env
+# Edit .env and set your OPENAI_API_KEY and other configuration
+```
+
+3. **Run everything with Docker:**
+```bash
+docker-compose up --build
+```
+
+This will:
+- Build the backend and frontend containers
+- Run the evaluation using settings from `.env`
+- Start the FastAPI backend on `http://localhost:8000`
+- Start the React frontend on `http://localhost:5173`
+
+4. **Access the dashboard:**
+Open your browser to `http://localhost:5173`
+
+### Configuration
+
+All configuration is done via environment variables in the `.env` file. See `.env.example` for all available options:
+
+- `USE_LLM`: Enable/disable LLM judge (true/false)
+- `NUM_EXAMPLES`: Number of examples to evaluate
+- `PRODUCTION_MODE`: Production mode - no reference notes (true/false)
+- `DATASET_SPLIT`: Dataset split to use (default: "test")
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `BACKEND_PORT`: Backend API port (default: 8000)
+- `FRONTEND_PORT`: Frontend port (default: 5173)
+
+## Manual Installation (Without Docker)
+
+If you prefer to run without Docker:
+
+1. **Install Python dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Set up your OpenAI API key:
+2. **Install frontend dependencies:**
 ```bash
-export OPENAI_API_KEY=your_api_key_here
+cd frontend
+npm install
 ```
 
-Or create a `.env` file:
+3. **Set up environment variables:**
+```bash
+cp .env.example .env
+# Edit .env with your configuration
 ```
-OPENAI_API_KEY=your_api_key_here
+
+4. **Run evaluation:**
+```bash
+python -m src.run_eval_env
+```
+
+5. **Start backend:**
+```bash
+uvicorn src.api.app:app --reload
+```
+
+6. **Start frontend (in another terminal):**
+```bash
+cd frontend
+npm run dev
 ```
 
 ## Usage
 
-### Running the Evaluation
+### Environment-Based Configuration
 
-Basic usage (evaluates 100 examples from test split):
-```bash
-python -m src.run_eval
-```
+All configuration is now done via environment variables in `.env`, not CLI flags:
 
-With custom parameters:
-```bash
-python -m src.run_eval --n 50 --split test --output-dir results
-```
-
-Without LLM (uses dummy scores for offline testing):
-```bash
-python -m src.run_eval --no-llm
-```
-
-Production mode (evaluate without reference notes - transcript + generated only):
-```bash
-python -m src.run_eval --production --n 50
-```
-
-### Command-Line Arguments
-
-- `--split`: Dataset split to use (default: "test")
-- `--n`: Number of examples to evaluate (default: 100)
-- `--output-dir`: Output directory for results (default: "results")
-- `--use-llm`: Use LLM judge (default: True)
-- `--no-llm`: Disable LLM judge (use dummy scores)
-- `--production`: Production mode - evaluate without reference notes (transcript + generated only)
+- `USE_LLM=true/false` - Enable/disable LLM judge
+- `NUM_EXAMPLES=50` - Number of examples to evaluate
+- `PRODUCTION_MODE=true/false` - Production mode (no reference notes)
+- `DATASET_SPLIT=test` - Dataset split to use
+- `OUTPUT_DIR=results` - Output directory for results
 
 ### Output Files
 
@@ -200,42 +235,36 @@ A modern React + FastAPI dashboard provides an interactive way to explore evalua
 
 ### Architecture
 
-- **Backend**: FastAPI REST API (`src/api.py`) that serves evaluation results
+- **Backend**: FastAPI REST API (`src/api/app.py`) that serves evaluation results
 - **Frontend**: React + TypeScript + Vite application with Tailwind CSS
 
 ### Running the Dashboard
 
-#### 1. Start the Backend API
-
-First, ensure you have run the evaluation to generate results:
-
+**With Docker (Recommended):**
 ```bash
-python -m src.run_eval --n 20 --split test --no-llm
+docker-compose up --build
 ```
 
-Then start the FastAPI server:
+**Manually:**
 
+1. Run evaluation (if not already done):
 ```bash
-# Option 1: Using the main.py entrypoint
-python main.py
-
-# Option 2: Using uvicorn directly
-uvicorn src.api:app --reload
+python -m src.run_eval_env
 ```
 
-The API will be available at `http://localhost:8000`.
+2. Start the backend:
+```bash
+uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+```
 
-#### 2. Start the Frontend
-
-In a separate terminal, navigate to the frontend directory and start the development server:
-
+3. Start the frontend:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-The dashboard will be available at `http://localhost:5173` and will automatically proxy API requests to the backend.
+The dashboard will be available at `http://localhost:5173` and will connect to the backend API.
 
 ### Dashboard Features
 
@@ -282,25 +311,34 @@ jupyter notebook notebooks/analysis.ipynb
 SOAP_Evaluation/
 ├── src/
 │   ├── __init__.py
+│   ├── config.py          # Central configuration (Pydantic BaseSettings)
 │   ├── models.py          # Pydantic models for examples and eval results
 │   ├── data_loader.py     # Load and prepare OMI Health dataset
 │   ├── corrupt_note.py    # Utilities to generate "generated" notes by corrupting reference
-│   ├── llm_judges.py      # Wrapper around OpenAI Chat Completions API
-│   ├── metrics.py         # Core metric computation
-│   ├── run_eval.py        # CLI script to run evaluation
-│   └── api.py             # FastAPI backend for serving results
+│   ├── run_eval_env.py    # Environment-driven evaluation entrypoint
+│   ├── eval/              # Evaluation modules
+│   │   ├── __init__.py
+│   │   ├── deterministic.py  # Deterministic metrics (structure, coverage, ROUGE, BLEU)
+│   │   ├── llm_judge.py      # LLM-as-a-judge wrapper
+│   │   └── pipeline.py       # Main evaluation pipeline
+│   └── api/               # API module
+│       ├── __init__.py
+│       └── app.py         # FastAPI backend for serving results
 ├── frontend/
 │   ├── src/
-│   │   ├── components/    # React components (Card, Badge, SummaryMetrics, NotesList, NoteDetail)
+│   │   ├── components/    # React components
 │   │   ├── api.ts         # API client functions
 │   │   ├── App.tsx        # Main application component
 │   │   └── main.tsx       # Entry point
+│   ├── Dockerfile         # Frontend Docker image
 │   ├── package.json
 │   └── vite.config.ts
 ├── notebooks/
 │   └── analysis.ipynb     # Analysis and visualization
 ├── results/               # Created at runtime; holds output files
-├── main.py                # Entry point for FastAPI server
+├── Dockerfile.backend     # Backend Docker image
+├── docker-compose.yml     # Docker Compose configuration
+├── .env.example           # Example environment variables
 ├── README.md
 └── requirements.txt
 ```

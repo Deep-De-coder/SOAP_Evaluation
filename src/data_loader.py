@@ -10,7 +10,9 @@ from .models import SoapExample
 logger = logging.getLogger(__name__)
 
 
-def load_omi_examples(split: str = "test", n: int = 100) -> List[SoapExample]:
+def load_omi_examples(
+    split: str = "test", n: int = 100, dataset_name: str = "omi-health/medical-dialogue-to-soap-summary"
+) -> List[SoapExample]:
     """
     Load the first n examples from the specified split and build SoapExample objects.
 
@@ -20,13 +22,14 @@ def load_omi_examples(split: str = "test", n: int = 100) -> List[SoapExample]:
     Args:
         split: Dataset split to load (default: "test")
         n: Number of examples to load (default: 100)
+        dataset_name: Hugging Face dataset name (default: "omi-health/medical-dialogue-to-soap-summary")
 
     Returns:
         List of SoapExample objects. The generated_note will initially be a copy
         of reference_note; it should be overwritten by the corruption step.
     """
-    logger.info(f"Loading {n} examples from {split} split...")
-    ds = load_dataset("omi-health/medical-dialogue-to-soap-summary", split=split)
+    logger.info(f"Loading {n} examples from {split} split of {dataset_name}...")
+    ds = load_dataset(dataset_name, split=split)
     ds = ds.select(range(min(n, len(ds))))
 
     examples: List[SoapExample] = []

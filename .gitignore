@@ -45,6 +45,9 @@ results/
 # Environment variables
 .env
 .env.local
+.env.*.local
+# But keep .env.example
+!.env.example
 
 # OS
 .DS_Store
