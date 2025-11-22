@@ -23,8 +23,16 @@ app = FastAPI(
 )
 
 # CORS middleware for React frontend
-# Allow frontend origin from settings (supports multiple origins if comma-separated)
-allowed_origins = [origin.strip() for origin in settings.FRONTEND_ORIGIN.split(",")]
+# Support both localhost (for local dev) and production frontend origin
+allowed_origins = [
+    "http://localhost:5173",  # Local development
+    settings.FRONTEND_ORIGIN,  # Production (from settings)
+]
+# Also support comma-separated origins in FRONTEND_ORIGIN
+if "," in settings.FRONTEND_ORIGIN:
+    allowed_origins.extend([origin.strip() for origin in settings.FRONTEND_ORIGIN.split(",")])
+# Remove duplicates while preserving order
+allowed_origins = list(dict.fromkeys(allowed_origins))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
