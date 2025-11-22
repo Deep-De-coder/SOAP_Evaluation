@@ -38,6 +38,7 @@ ENV/
 
 # Results
 results/
+backend/results/
 *.jsonl
 *.json
 *.csv
@@ -46,8 +47,12 @@ results/
 .env
 .env.local
 .env.*.local
-# But keep .env.example
+backend/.env
+frontend/.env.local
+# But keep .env.example files
 !.env.example
+!backend/.env.example
+!frontend/.env.local.example
 
 # OS
 .DS_Store

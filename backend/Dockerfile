@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies if needed
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend source code
+COPY . .
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Create results directory
+RUN mkdir -p results
+
+# Command: run eval once, then start API server
+CMD bash -c "python -m src.run_eval_env && uvicorn src.api.app:app --host 0.0.0.0 --port ${BACKEND_PORT:-8000}"
+
