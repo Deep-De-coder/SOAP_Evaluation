@@ -161,7 +161,7 @@ The frontend will be available at `http://localhost:5173`
 1. **Create a new Vercel project:**
    - Connect your GitHub repository
    - Set **Root Directory** to `frontend`
-   - Framework Preset: Vite
+   - Framework Preset: **Vite** (React + Vite)
 
 2. **Set environment variables in Vercel dashboard:**
    - `VITE_API_BASE_URL=https://your-backend.onrender.com` (use your Render backend URL)
