@@ -227,7 +227,3 @@ The backend uses CORS middleware to allow requests from the frontend. The `FRONT
 
 - Set `FRONTEND_ORIGIN` to your Vercel app URL (e.g., `https://your-app.vercel.app`)
 - Multiple origins can be comma-separated: `https://app1.vercel.app,https://app2.vercel.app`
-
-## License
-
-[Add your license here]
