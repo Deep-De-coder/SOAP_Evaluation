@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { fetchNotes, NoteListItem } from '../api';
-import { Card } from './Card';
+import { Card, CardHeader } from './Card';
 import { Badge } from './Badge';
+import { SectionHeader } from './SectionHeader';
 
 interface NotesListProps {
   onNoteSelect: (exampleId: string) => void;
@@ -14,7 +15,6 @@ export const NotesList: React.FC<NotesListProps> = ({ onNoteSelect }) => {
 
   // Filter state
   const [minQuality, setMinQuality] = useState<number>(0);
-  const [maxQuality, setMaxQuality] = useState<number>(1);
   const [hallucinationOnly, setHallucinationOnly] = useState(false);
   const [missingCriticalOnly, setMissingCriticalOnly] = useState(false);
   const [majorIssuesOnly, setMajorIssuesOnly] = useState(false);
@@ -24,7 +24,7 @@ export const NotesList: React.FC<NotesListProps> = ({ onNoteSelect }) => {
       setLoading(true);
       const data = await fetchNotes({
         min_quality: minQuality,
-        max_quality: maxQuality,
+        max_quality: 1,
         hallucination_only: hallucinationOnly,
         missing_critical_only: missingCriticalOnly,
         major_issues_only: majorIssuesOnly,
@@ -40,27 +40,30 @@ export const NotesList: React.FC<NotesListProps> = ({ onNoteSelect }) => {
 
   useEffect(() => {
     loadNotes();
-  }, [minQuality, maxQuality, hallucinationOnly, missingCriticalOnly, majorIssuesOnly]);
+  }, [minQuality, hallucinationOnly, missingCriticalOnly, majorIssuesOnly]);
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Notes Explorer</h2>
-        <p className="text-sm text-gray-600">
-          Showing {notes.length} note{notes.length !== 1 ? 's' : ''}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+        <SectionHeader
+          title="Notes Overview"
+          subtitle={`Showing ${notes.length} note${notes.length !== 1 ? 's' : ''}`}
+        />
       </div>
 
       {/* Filters */}
-      <Card className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-        <div className="space-y-4">
+      <Card className="mb-8" hover>
+        <CardHeader
+          title="Filters"
+          subtitle="Refine your search criteria"
+        />
+        <div className="space-y-6">
           {/* Quality Range */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Overall Quality Range: {minQuality.toFixed(2)} - {maxQuality.toFixed(2)}
+            <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-3">
+              Minimum Quality: {minQuality.toFixed(2)}
             </label>
-            <div className="flex gap-2">
+            <div className="flex-1">
               <input
                 type="range"
                 min="0"
@@ -68,52 +71,43 @@ export const NotesList: React.FC<NotesListProps> = ({ onNoteSelect }) => {
                 step="0.01"
                 value={minQuality}
                 onChange={(e) => setMinQuality(parseFloat(e.target.value))}
-                className="flex-1"
+                className="w-full h-2 bg-[var(--color-border-subtle)] rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)]"
               />
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={maxQuality}
-                onChange={(e) => setMaxQuality(parseFloat(e.target.value))}
-                className="flex-1"
-              />
-            </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>0.0</span>
-              <span>1.0</span>
+              <div className="flex justify-between text-xs text-[var(--color-text-secondary)] mt-1">
+                <span>0.0</span>
+                <span>1.0</span>
+              </div>
             </div>
           </div>
 
           {/* Checkboxes */}
-          <div className="flex flex-wrap gap-4">
-            <label className="flex items-center">
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={hallucinationOnly}
                 onChange={(e) => setHallucinationOnly(e.target.checked)}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                className="w-4 h-4 rounded border-[var(--color-border-subtle)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] focus:ring-2"
               />
-              <span className="ml-2 text-sm text-gray-700">Only notes with hallucinations</span>
+              <span className="ml-3 text-base text-[var(--color-text-primary)]">Only notes with hallucinations</span>
             </label>
-            <label className="flex items-center">
+            <label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={missingCriticalOnly}
                 onChange={(e) => setMissingCriticalOnly(e.target.checked)}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                className="w-4 h-4 rounded border-[var(--color-border-subtle)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] focus:ring-2"
               />
-              <span className="ml-2 text-sm text-gray-700">Only notes with missing critical findings</span>
+              <span className="ml-3 text-base text-[var(--color-text-primary)]">Only notes with missing critical findings</span>
             </label>
-            <label className="flex items-center">
+            <label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={majorIssuesOnly}
                 onChange={(e) => setMajorIssuesOnly(e.target.checked)}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                className="w-4 h-4 rounded border-[var(--color-border-subtle)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] focus:ring-2"
               />
-              <span className="ml-2 text-sm text-gray-700">Only notes with major/critical issues</span>
+              <span className="ml-3 text-base text-[var(--color-text-primary)]">Only notes with major/critical issues</span>
             </label>
           </div>
         </div>
@@ -121,71 +115,71 @@ export const NotesList: React.FC<NotesListProps> = ({ onNoteSelect }) => {
 
       {/* Notes Table */}
       {loading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-          <p className="mt-2 text-gray-600">Loading notes...</p>
+        <div className="text-center py-16">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+          <p className="mt-4 text-[var(--color-text-secondary)]">Loading notes...</p>
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <Card className="border-red-200 bg-red-50">
           <p className="text-red-800">{error}</p>
-        </div>
+        </Card>
       ) : notes.length === 0 ? (
         <Card>
-          <p className="text-center text-gray-500">No notes match the current filters.</p>
+          <p className="text-center text-[var(--color-text-secondary)] py-8">No notes match the current filters.</p>
         </Card>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <Card className="p-0 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-border-subtle">
+              <thead className="bg-[var(--color-surface-alt)]">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     ID
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     Overall Quality
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     Coverage
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     Faithfulness
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     Accuracy
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-[var(--color-surface)] divide-y divide-border-subtle">
                 {notes.map((note) => (
                   <tr
                     key={note.example_id}
-                    className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="hover:bg-[var(--color-surface-alt)]/50 cursor-pointer transition-colors duration-150"
                     onClick={() => onNoteSelect(note.example_id)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--color-text-primary)]">
                       {note.example_id}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-primary)]">
                       {note.overall_quality.toFixed(3)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-primary)]">
                       {note.coverage.toFixed(3)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-primary)]">
                       {note.faithfulness.toFixed(3)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--color-text-primary)]">
                       {note.accuracy.toFixed(3)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-2">
                         {note.has_hallucination && (
                           <Badge variant="error">Hallucination</Badge>
                         )}
@@ -206,7 +200,7 @@ export const NotesList: React.FC<NotesListProps> = ({ onNoteSelect }) => {
                           e.stopPropagation();
                           onNoteSelect(note.example_id);
                         }}
-                        className="text-primary-600 hover:text-primary-800 font-medium"
+                        className="text-primary hover:text-primary-dark font-semibold transition-colors"
                       >
                         View
                       </button>
@@ -216,7 +210,7 @@ export const NotesList: React.FC<NotesListProps> = ({ onNoteSelect }) => {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

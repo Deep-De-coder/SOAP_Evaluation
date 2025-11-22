@@ -1,0 +1,850 @@
+import React from 'react';
+
+interface BadgeProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'neutral';
+  className?: string;
+}
+
+export const Badge: React.FC<BadgeProps> = ({ 
+  children, 
+  variant = 'default',
+  className = '' 
+}) => {
+  const variantClasses = {
+    default: 'bg-gray-100 text-gray-800',
+    success: 'bg-green-50 text-green-700 border border-green-200',
+    warning: 'bg-orange-50 text-badge-warning border border-orange-200',
+    error: 'bg-red-50 text-badge-danger border border-red-200',
+    info: 'bg-blue-50 text-badge-info border border-blue-200',
+    neutral: 'bg-gray-50 text-text-secondary border border-border-subtle',
+  };
+
+  return (
+    <span
+      className={`
+        inline-flex items-center px-3 py-1 rounded-full 
+        text-xs font-medium border
+        ${variantClasses[variant]} 
+        ${className}
+      `}
+    >
+      {children}
+    </span>
+  );
+};
+
+import React from 'react';
+
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  hover?: boolean;
+}
+
+export const Card: React.FC<CardProps> = ({ 
+  children, 
+  className = '',
+  hover = false,
+}) => {
+  const hoverClasses = hover
+    ? 'hover:shadow-card-hover hover:-translate-y-0.5 hover:border-primary/40 transition-all duration-200 ease-out'
+    : '';
+
+  return (
+    <div
+      className={`
+        bg-surface rounded-[24px] border border-border-subtle p-6
+        shadow-card ${hoverClasses}
+        ${className}
+      `}
+    >
+      {children}
+    </div>
+  );
+};
+
+interface CardHeaderProps {
+  title: string;
+  subtitle?: string;
+}
+
+export const CardHeader: React.FC<CardHeaderProps> = ({ title, subtitle }) => {
+  return (
+    <div className="mb-6">
+      <h3 className="text-lg font-semibold text-text-primary mb-1">{title}</h3>
+      {subtitle && (
+        <p className="text-sm text-text-secondary mt-1">{subtitle}</p>
+      )}
+    </div>
+  );
+};
+
+import React from 'react';
+
+export const Hero: React.FC = () => {
+  return (
+    <section className="hero-gradient text-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: Text Content */}
+          <div className="relative z-10">
+            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+              SOAP Note Quality Dashboard
+            </h1>
+            <p className="text-lg text-blue-100 mb-8 leading-relaxed">
+              Hybrid deterministic + LLM evaluation, inspired by ambient AI workflows.
+              Comprehensive metrics for clinical note quality assessment.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <button className="bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-full transition-colors duration-200">
+                View Metrics
+              </button>
+              <button className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-full border border-white/20 transition-colors duration-200">
+                Learn More
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Visual Element */}
+          <div className="relative z-10 hidden lg:block">
+            <div className="relative">
+              {/* Abstract gradient blob */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary-dark/20 rounded-card blur-3xl transform rotate-6"></div>
+              {/* Card mockup */}
+              <div className="relative bg-white/10 backdrop-blur-sm rounded-card p-8 border border-white/20">
+                <div className="space-y-4">
+                  <div className="h-3 bg-white/20 rounded w-3/4"></div>
+                  <div className="h-3 bg-white/30 rounded w-full"></div>
+                  <div className="h-3 bg-white/20 rounded w-5/6"></div>
+                  <div className="mt-6 grid grid-cols-3 gap-4">
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <div className="h-2 bg-primary rounded mb-2"></div>
+                      <div className="h-2 bg-white/20 rounded w-2/3"></div>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <div className="h-2 bg-primary rounded mb-2"></div>
+                      <div className="h-2 bg-white/20 rounded w-2/3"></div>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <div className="h-2 bg-primary rounded mb-2"></div>
+                      <div className="h-2 bg-white/20 rounded w-2/3"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary-dark/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+    </section>
+  );
+};
+
+
+import React from 'react';
+
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  caption?: string;
+  icon?: React.ReactNode;
+  className?: string;
+}
+
+export const MetricCard: React.FC<MetricCardProps> = ({
+  title,
+  value,
+  caption,
+  icon,
+  className = '',
+}) => {
+  return (
+    <div
+      className={`
+        bg-surface rounded-[24px] border border-border-subtle p-6
+        shadow-card hover:shadow-card-hover hover:-translate-y-0.5
+        transition-all duration-200 ease-out
+        hover:border-primary/40
+        ${className}
+      `}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
+            {title}
+          </p>
+          <p className="text-3xl font-bold text-text-primary mb-1">
+            {value}
+          </p>
+          {caption && (
+            <p className="text-sm text-text-secondary">
+              {caption}
+            </p>
+          )}
+        </div>
+        {icon && (
+          <div className="ml-4 text-primary opacity-60">
+            {icon}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+import React, { useEffect, useState } from 'react';
+import { fetchNoteDetail, NoteDetail as NoteDetailType } from '../api';
+import { Card, CardHeader } from './Card';
+import { Badge } from './Badge';
+import { SectionHeader } from './SectionHeader';
+
+interface NoteDetailProps {
+  exampleId: string;
+  onClose: () => void;
+}
+
+export const NoteDetail: React.FC<NoteDetailProps> = ({ exampleId, onClose }) => {
+  const [note, setNote] = useState<NoteDetailType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    transcript: false,
+    reference_note: false,
+    generated_note: false,
+  });
+
+  useEffect(() => {
+    const loadNote = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchNoteDetail(exampleId);
+        setNote(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load note detail');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNote();
+  }, [exampleId]);
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center py-16">
+        <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+        <p className="mt-4 text-text-secondary">Loading note details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border-red-200 bg-red-50">
+        <p className="text-red-800 mb-4">{error}</p>
+        <button
+          onClick={onClose}
+          className="text-sm text-primary hover:text-primary-dark font-semibold"
+        >
+          ← Back to list
+        </button>
+      </Card>
+    );
+  }
+
+  if (!note) {
+    return null;
+  }
+
+  const severityColors: Record<string, 'default' | 'warning' | 'error' | 'info'> = {
+    minor: 'default',
+    major: 'warning',
+    critical: 'error',
+  };
+
+  const issuesByCategory = note.issues.reduce((acc, issue) => {
+    if (!acc[issue.category]) {
+      acc[issue.category] = [];
+    }
+    acc[issue.category].push(issue);
+    return acc;
+  }, {} as Record<string, typeof note.issues>);
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+        <SectionHeader
+          title={`Note Details: ${note.example_id}`}
+          subtitle="Comprehensive evaluation results"
+        />
+        <button
+          onClick={onClose}
+          className="text-sm text-text-secondary hover:text-text-primary font-semibold transition-colors"
+        >
+          ← Back to list
+        </button>
+      </div>
+
+      {/* Scores */}
+      <Card className="mb-8" hover>
+        <CardHeader title="Scores" subtitle="Evaluation metrics for this note" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {Object.entries(note.scores).map(([key, value]) => {
+            // Skip None/null values for reference-based metrics
+            if (value === null || value === undefined) {
+              return null;
+            }
+            // Format ROUGE and BLEU with special handling
+            const isReferenceMetric = key === 'rouge_l_f' || key === 'bleu';
+            return (
+              <div key={key} className="text-center">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
+                  {key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                  {isReferenceMetric && (
+                    <span className="ml-1 text-xs text-text-secondary">(ref)</span>
+                  )}
+                </p>
+                <p className="text-2xl font-bold text-text-primary">
+                  {typeof value === 'number' ? value.toFixed(3) : String(value)}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+        {/* Show message if reference-based metrics are missing */}
+        {(note.scores.rouge_l_f === null || note.scores.rouge_l_f === undefined ||
+          note.scores.bleu === null || note.scores.bleu === undefined) && (
+          <div className="mt-6 pt-6 border-t border-border-subtle text-sm text-text-secondary italic">
+            Note: ROUGE-L and BLEU metrics are only available when reference notes are present (not in production mode).
+          </div>
+        )}
+      </Card>
+
+      {/* Issues */}
+      {note.issues.length > 0 ? (
+        <Card className="mb-8" hover>
+          <CardHeader 
+            title="Issues" 
+            subtitle={`${note.issues.length} issue${note.issues.length !== 1 ? 's' : ''} found`} 
+          />
+          <div className="space-y-6">
+            {Object.entries(issuesByCategory).map(([category, issues]) => (
+              <div key={category} className="border-l-4 border-primary pl-6">
+                <h4 className="text-base font-semibold text-text-primary mb-3">
+                  {category.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                </h4>
+                <div className="space-y-4">
+                  {issues.map((issue, index) => (
+                    <div key={index} className="bg-surface-alt rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Badge variant={severityColors[issue.severity] || 'default'}>
+                          {issue.severity.toUpperCase()}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-text-primary mb-3">{issue.description}</p>
+                      {issue.span_model && (
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold text-text-secondary mb-1">Model span:</p>
+                          <code className="text-xs bg-surface border border-border-subtle rounded px-3 py-2 block text-text-primary">
+                            {issue.span_model}
+                          </code>
+                        </div>
+                      )}
+                      {issue.span_source && (
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold text-text-secondary mb-1">Source span:</p>
+                          <code className="text-xs bg-surface border border-border-subtle rounded px-3 py-2 block text-text-primary">
+                            {issue.span_source}
+                          </code>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : (
+        <Card className="mb-8">
+          <div className="text-center py-8">
+            <Badge variant="success">No issues found</Badge>
+          </div>
+        </Card>
+      )}
+
+      {/* Content Sections */}
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Left Column: Scores & Issues (already shown above, but could add more) */}
+        
+        {/* Right Column: Text Content */}
+        <div className="space-y-6">
+          {note.transcript && (
+            <Card hover>
+              <button
+                onClick={() => toggleSection('transcript')}
+                className="w-full text-left flex justify-between items-center"
+              >
+                <CardHeader title="Transcript" subtitle="Doctor-patient dialogue" />
+                <span className="text-text-secondary text-xl">
+                  {expandedSections.transcript ? '▼' : '▶'}
+                </span>
+              </button>
+              {expandedSections.transcript && (
+                <div className="mt-4">
+                  <pre className="whitespace-pre-wrap text-sm text-text-primary bg-surface-alt p-4 rounded-lg border border-border-subtle max-h-96 overflow-y-auto">
+                    {note.transcript}
+                  </pre>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {note.reference_note && (
+            <Card hover>
+              <button
+                onClick={() => toggleSection('reference_note')}
+                className="w-full text-left flex justify-between items-center"
+              >
+                <CardHeader title="Reference Note" subtitle="Ground truth SOAP note" />
+                <span className="text-text-secondary text-xl">
+                  {expandedSections.reference_note ? '▼' : '▶'}
+                </span>
+              </button>
+              {expandedSections.reference_note && (
+                <div className="mt-4">
+                  <pre className="whitespace-pre-wrap text-sm text-text-primary bg-surface-alt p-4 rounded-lg border border-border-subtle max-h-96 overflow-y-auto">
+                    {note.reference_note}
+                  </pre>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {note.generated_note && (
+            <Card hover>
+              <button
+                onClick={() => toggleSection('generated_note')}
+                className="w-full text-left flex justify-between items-center"
+              >
+                <CardHeader title="Generated Note" subtitle="Evaluated SOAP note" />
+                <span className="text-text-secondary text-xl">
+                  {expandedSections.generated_note ? '▼' : '▶'}
+                </span>
+              </button>
+              {expandedSections.generated_note && (
+                <div className="mt-4">
+                  <pre className="whitespace-pre-wrap text-sm text-text-primary bg-surface-alt p-4 rounded-lg border border-border-subtle max-h-96 overflow-y-auto">
+                    {note.generated_note}
+                  </pre>
+                </div>
+              )}
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+import React, { useEffect, useState } from 'react';
+import { fetchNotes, NoteListItem } from '../api';
+import { Card, CardHeader } from './Card';
+import { Badge } from './Badge';
+import { SectionHeader } from './SectionHeader';
+
+interface NotesListProps {
+  onNoteSelect: (exampleId: string) => void;
+}
+
+export const NotesList: React.FC<NotesListProps> = ({ onNoteSelect }) => {
+  const [notes, setNotes] = useState<NoteListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Filter state
+  const [minQuality, setMinQuality] = useState<number>(0);
+  const [maxQuality, setMaxQuality] = useState<number>(1);
+  const [hallucinationOnly, setHallucinationOnly] = useState(false);
+  const [missingCriticalOnly, setMissingCriticalOnly] = useState(false);
+  const [majorIssuesOnly, setMajorIssuesOnly] = useState(false);
+
+  const loadNotes = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchNotes({
+        min_quality: minQuality,
+        max_quality: maxQuality,
+        hallucination_only: hallucinationOnly,
+        missing_critical_only: missingCriticalOnly,
+        major_issues_only: majorIssuesOnly,
+      });
+      setNotes(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load notes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadNotes();
+  }, [minQuality, maxQuality, hallucinationOnly, missingCriticalOnly, majorIssuesOnly]);
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+        <SectionHeader
+          title="Notes Overview"
+          subtitle={`Showing ${notes.length} note${notes.length !== 1 ? 's' : ''}`}
+        />
+      </div>
+
+      {/* Filters */}
+      <Card className="mb-8" hover>
+        <CardHeader
+          title="Filters"
+          subtitle="Refine your search criteria"
+        />
+        <div className="space-y-6">
+          {/* Quality Range */}
+          <div>
+            <label className="block text-sm font-medium text-text-primary mb-3">
+              Overall Quality Range: {minQuality.toFixed(2)} - {maxQuality.toFixed(2)}
+            </label>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={minQuality}
+                  onChange={(e) => setMinQuality(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-border-subtle rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+                <div className="flex justify-between text-xs text-text-secondary mt-1">
+                  <span>0.0</span>
+                  <span>1.0</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={maxQuality}
+                  onChange={(e) => setMaxQuality(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-border-subtle rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Checkboxes */}
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hallucinationOnly}
+                onChange={(e) => setHallucinationOnly(e.target.checked)}
+                className="w-4 h-4 rounded border-border-subtle text-primary focus:ring-primary focus:ring-2"
+              />
+              <span className="ml-3 text-sm text-text-primary">Only notes with hallucinations</span>
+            </label>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={missingCriticalOnly}
+                onChange={(e) => setMissingCriticalOnly(e.target.checked)}
+                className="w-4 h-4 rounded border-border-subtle text-primary focus:ring-primary focus:ring-2"
+              />
+              <span className="ml-3 text-sm text-text-primary">Only notes with missing critical findings</span>
+            </label>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={majorIssuesOnly}
+                onChange={(e) => setMajorIssuesOnly(e.target.checked)}
+                className="w-4 h-4 rounded border-border-subtle text-primary focus:ring-primary focus:ring-2"
+              />
+              <span className="ml-3 text-sm text-text-primary">Only notes with major/critical issues</span>
+            </label>
+          </div>
+        </div>
+      </Card>
+
+      {/* Notes Table */}
+      {loading ? (
+        <div className="text-center py-16">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+          <p className="mt-4 text-text-secondary">Loading notes...</p>
+        </div>
+      ) : error ? (
+        <Card className="border-red-200 bg-red-50">
+          <p className="text-red-800">{error}</p>
+        </Card>
+      ) : notes.length === 0 ? (
+        <Card>
+          <p className="text-center text-text-secondary py-8">No notes match the current filters.</p>
+        </Card>
+      ) : (
+        <Card className="p-0 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border-subtle">
+              <thead className="bg-surface-alt">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                    Overall Quality
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                    Coverage
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                    Faithfulness
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                    Accuracy
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-surface divide-y divide-border-subtle">
+                {notes.map((note) => (
+                  <tr
+                    key={note.example_id}
+                    className="hover:bg-surface-alt/50 cursor-pointer transition-colors duration-150"
+                    onClick={() => onNoteSelect(note.example_id)}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">
+                      {note.example_id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
+                      {note.overall_quality.toFixed(3)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
+                      {note.coverage.toFixed(3)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
+                      {note.faithfulness.toFixed(3)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
+                      {note.accuracy.toFixed(3)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <div className="flex flex-wrap gap-2">
+                        {note.has_hallucination && (
+                          <Badge variant="error">Hallucination</Badge>
+                        )}
+                        {note.has_missing_critical && (
+                          <Badge variant="warning">Missing Critical</Badge>
+                        )}
+                        {note.has_major_issue && (
+                          <Badge variant="error">Major Issue</Badge>
+                        )}
+                        {!note.has_hallucination && !note.has_missing_critical && !note.has_major_issue && (
+                          <Badge variant="success">OK</Badge>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNoteSelect(note.example_id);
+                        }}
+                        className="text-primary hover:text-primary-dark font-semibold transition-colors"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+import React from 'react';
+
+interface SectionHeaderProps {
+  title: string;
+  subtitle?: string;
+  className?: string;
+}
+
+export const SectionHeader: React.FC<SectionHeaderProps> = ({
+  title,
+  subtitle,
+  className = '',
+}) => {
+  return (
+    <div className={`mb-8 ${className}`}>
+      <h2 className="text-2xl font-semibold text-text-primary mb-2">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="text-sm text-text-secondary">
+          {subtitle}
+        </p>
+      )}
+    </div>
+  );
+};
+
+
+import React, { useEffect, useState } from 'react';
+import { fetchSummary, Summary } from '../api';
+import { MetricCard } from './MetricCard';
+import { SectionHeader } from './SectionHeader';
+
+export const SummaryMetrics: React.FC = () => {
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadSummary = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchSummary();
+        setSummary(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load summary');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSummary();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center py-16">
+        <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+        <p className="mt-4 text-text-secondary">Loading summary...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border-red-200 bg-red-50">
+        <p className="text-red-800">{error}</p>
+      </Card>
+    );
+  }
+
+  if (!summary) {
+    return null;
+  }
+
+  const overallQuality = summary.scores.overall_quality.mean;
+  const coverage = summary.scores.coverage.mean;
+  const faithfulness = summary.scores.faithfulness.mean;
+  const accuracy = summary.scores.accuracy.mean;
+  const hallucinationRate = summary.error_rates.hallucination.rate;
+  const clinicalErrorRate = summary.error_rates.clinical_error.rate;
+  const rougeLf = summary.scores.rouge_l_f;
+  const bleu = summary.scores.bleu;
+
+  const metrics = [
+    {
+      label: 'Notes Evaluated',
+      value: summary.n_examples.toLocaleString(),
+      caption: 'Total number of notes',
+    },
+    {
+      label: 'Overall Quality',
+      value: overallQuality.toFixed(3),
+      caption: 'Average quality score',
+    },
+    {
+      label: 'Coverage',
+      value: coverage.toFixed(3),
+      caption: 'Average coverage score',
+    },
+    {
+      label: 'Faithfulness',
+      value: faithfulness.toFixed(3),
+      caption: 'Average faithfulness score',
+    },
+    {
+      label: 'Accuracy',
+      value: accuracy.toFixed(3),
+      caption: 'Average accuracy score',
+    },
+    {
+      label: 'ROUGE-L F1',
+      value: rougeLf ? rougeLf.mean.toFixed(3) : 'N/A',
+      caption: rougeLf ? 'Average ROUGE-L F1' : 'N/A (no reference)',
+    },
+    {
+      label: 'BLEU Score',
+      value: bleu ? bleu.mean.toFixed(3) : 'N/A',
+      caption: bleu ? 'Average BLEU score' : 'N/A (no reference)',
+    },
+    {
+      label: 'Hallucination Rate',
+      value: `${(hallucinationRate * 100).toFixed(1)}%`,
+      caption: 'Notes with hallucinations',
+    },
+    {
+      label: 'Clinical Risk',
+      value: `${(clinicalErrorRate * 100).toFixed(1)}%`,
+      caption: 'Major/critical errors',
+    },
+  ];
+
+  return (
+    <div>
+      <SectionHeader
+        title="Evaluation Summary"
+        subtitle="Comprehensive metrics for SOAP note quality assessment"
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {metrics.map((metric, index) => (
+          <MetricCard
+            key={index}
+            title={metric.label}
+            value={metric.value}
+            caption={metric.caption}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+import { Card } from './Card';
+

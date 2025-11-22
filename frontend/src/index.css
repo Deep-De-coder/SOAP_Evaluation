@@ -3,8 +3,34 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-primary: #00A1F4;
+    --color-primary-dark: #0057A3;
+    --color-hero-bg-start: #020617;
+    --color-hero-bg-end: #0B1434;
+    --color-surface: #FFFFFF;
+    --color-surface-alt: #F8FAFC;
+    --color-border-subtle: #E2E8F0;
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #64748B;
+    --color-badge-info: #00A1F4;
+    --color-badge-warning: #F97316;
+    --color-badge-danger: #DC2626;
+    --radius-card: 24px;
+    --shadow-card: 0 18px 40px rgba(15, 23, 42, 0.10);
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+    background-color: var(--color-surface-alt);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
+@layer components {
+  .hero-gradient {
+    background: radial-gradient(circle at top left, #00A1F4 0%, #0B1434 40%, #020617 100%);
+  }
+}
