@@ -41,9 +41,13 @@ results/
 backend/results/
 *.jsonl
 *.json
-# But keep package.json files
+# But keep package.json and tsconfig.json files
 !package.json
 !**/package.json
+!tsconfig.json
+!**/tsconfig.json
+!tsconfig.*.json
+!**/tsconfig.*.json
 *.csv
 
 # Environment variables
