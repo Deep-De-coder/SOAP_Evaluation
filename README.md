@@ -2,6 +2,10 @@
 
 A monorepo containing a hybrid deterministic + LLM evaluation framework for clinical SOAP notes, with a React dashboard for visualization.
 
+## 🚀 Live Demo
+
+**Frontend Dashboard:** [https://soap-evaluation.vercel.app/](https://soap-evaluation.vercel.app/)
+
 ## Monorepo Structure
 
 ```
