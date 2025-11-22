@@ -41,6 +41,9 @@ results/
 backend/results/
 *.jsonl
 *.json
+# But keep package.json files
+!package.json
+!**/package.json
 *.csv
 
 # Environment variables
